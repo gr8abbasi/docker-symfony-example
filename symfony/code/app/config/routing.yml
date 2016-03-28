@@ -1,0 +1,8 @@
+abbasi_xml_parser:
+    resource: "@AbbasiXMLParserBundle/Controller/"
+    type:     annotation
+    prefix:   /
+
+app:
+    resource: "@AppBundle/Controller/"
+    type:     annotation

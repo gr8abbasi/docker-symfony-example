@@ -1,0 +1,4 @@
+services:
+#    abbasi_xml_parser.example:
+#        class: Abbasi\Bundle\XMLParserBundle\Example
+#        arguments: ["@service_id", "plain_value", %parameter%]
