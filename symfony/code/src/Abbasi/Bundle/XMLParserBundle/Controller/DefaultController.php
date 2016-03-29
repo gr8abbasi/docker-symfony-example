@@ -2,10 +2,11 @@
 
 namespace Abbasi\Bundle\XMLParserBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use XMLReader;
 use SimpleXMLElement;
+use Abbasi\Bundle\XMLParserBundle\SSE;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 
 class DefaultController extends Controller
 {
@@ -15,22 +16,29 @@ class DefaultController extends Controller
     public function indexAction()
     {
         // return $this->render('AbbasiXMLParserBundle:Default:index.html.twig');
-        $this->parseXML();
+        $this->getData();
+    }
+
+    private function getData()
+    {
+        $sse = new SSE();
+        $sse->addEventListener('xmlparser', new XMLParserEvent());
+        $sse->start();
     }
 
     private function parseXML()
     {
-        header("Content-Type: text/event-stream");
-        header("Cache-Control: no-cache");
-        header("Connection: keep-alive");
-        header("Access-Control-Allow-Origin: *");
+        header('Content-Type: text/event-stream');
+        header('Cache-Control: no-cache');
+        header('Connection: keep-alive');
+        header('Access-Control-Allow-Origin: *');
 
         $reader = new XMLReader();
-        $result = $reader->open("http://pf.tradetracker.net/?aid=1&type=xml&encoding=utf-8&fid=251713&categoryType=2&additionalType=2");
+        $result = $reader->open('http://pf.tradetracker.net/?aid=1&type=xml&encoding=utf-8&fid=251713&categoryType=2&additionalType=2');
 
         while ($reader->read() && $reader->name !== 'product');
 
-        while( 'product' === $reader->name  ) {
+        while ('product' === $reader->name) {
             $item = array();
             $node = new SimpleXMLElement($reader->readOuterXML());
 
@@ -51,11 +59,8 @@ class DefaultController extends Controller
 
             sleep(3);
 
-            $reader->next("product");
-
+            $reader->next('product');
         }
-
-
     }
 
     private function sendResponse($item)
