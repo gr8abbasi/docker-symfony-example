@@ -70,12 +70,16 @@ class SSE
 
         $start = time();//record start time
 
+        //set the retry interval for the client
+        SSEHelper::sseSend('retry: '.($this->client_reconnect * 1000)."\n");
+
+
         //keep the script running
         while (true) {
             if (SSEHelper::timeMod($start, $this->keep_alive_time) == 0) {
                 //No updates needed, send a comment to keep the connection alive.
                 //From https://developer.mozilla.org/en-US/docs/Server-sent_events/Using_server-sent_events
-                echo ': '.sha1(mt_rand())."\n\n";
+                SSEHelper::sseSend(': '.sha1(mt_rand())."\n\n");
             }
             //start to check for updates
             foreach ($this->_handlers as $event => $handler) {
@@ -129,7 +133,5 @@ class SSE
             ob_end_flush();
         }
         ob_implicit_flush(1);
-
-        echo 'retry: '.($this->client_reconnect * 1000)."\n";    //set the retry interval for the client
     }
 }
