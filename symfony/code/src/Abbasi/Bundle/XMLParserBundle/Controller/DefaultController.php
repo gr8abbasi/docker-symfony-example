@@ -23,7 +23,7 @@ class DefaultController extends Controller
     {
         $sse = new SSE();
         $sse->addEventListener('xmlparser', new XMLParserEvent());
-        $sse->start();
+        $sse->startStream();
     }
 
     private function parseXML()

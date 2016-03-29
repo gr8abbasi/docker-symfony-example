@@ -63,7 +63,50 @@ class SSE
     * @method SSE::start
     * @description start the event loop
     */
-    public function start()
+    public function startStream()
+    {
+        //prepare stream headers and flush buffers etc.
+        $this->prepareStream();
+
+        $start = time();//record start time
+
+        //keep the script running
+        while (true) {
+            if (SSEHelper::timeMod($start, $this->keep_alive_time) == 0) {
+                //No updates needed, send a comment to keep the connection alive.
+                //From https://developer.mozilla.org/en-US/docs/Server-sent_events/Using_server-sent_events
+                echo ': '.sha1(mt_rand())."\n\n";
+            }
+            //start to check for updates
+            foreach ($this->_handlers as $event => $handler) {
+                if ($handler->check()) {
+                    //check if the data is avaliable
+                    $data = $handler->update();//get the data
+                    ++$this->id;
+                    SSEHelper::sseBlock($this->id, $data, $event);
+                    //make sure the data has been sent to the client
+                    unset($data);
+                    //memory_get_usage();
+                    @ob_flush();
+                    @flush();
+                } else {
+                    continue;
+                }
+            }
+            //break if the time excceed the limit
+            if ($this->exec_limit != 0 && SSEHelper::timeDiff($start) > $this->exec_limit) {
+                break;
+            }
+            //sleep
+            usleep($this->sleep_time * 1000000);
+        }
+    }
+
+    /**
+     * prepare stream headers, cache,
+     * flush buffer and set ini elements.
+     */
+    private function prepareStream()
     {
         @set_time_limit(0);//disable time limit
         //send the proper header
@@ -86,39 +129,7 @@ class SSE
             ob_end_flush();
         }
         ob_implicit_flush(1);
-        $start = time();//record start time
+
         echo 'retry: '.($this->client_reconnect * 1000)."\n";    //set the retry interval for the client
-        //keep the script running
-        while (true) {
-            if (SSEHelper::timeMod($start, $this->keep_alive_time) == 0) {
-                //No updates needed, send a comment to keep the connection alive.
-                //From https://developer.mozilla.org/en-US/docs/Server-sent_events/Using_server-sent_events
-                echo ': '.sha1(mt_rand())."\n\n";
-            }
-            //start to check for updates
-            foreach ($this->_handlers as $event => $handler) {
-                if ($handler->check()) {
-                    //check if the data is avaliable
-                    $data = $handler->update();//get the data
-                    ++$this->id;
-                    SSEHelper::sseBlock($this->id, $data, $event);
-                    //make sure the data has been sent to the client
-                    unset($data);
-                    //memory_get_usage();
-                    @ob_flush();
-                    @flush();
-                    @gc_enable();
-                    @gc_collect_cycles();
-                } else {
-                    continue;
-                }
-            }
-            //break if the time excceed the limit
-            if ($this->exec_limit != 0 && SSEHelper::timeDiff($start) > $this->exec_limit) {
-                break;
-            }
-            //sleep
-            usleep($this->sleep_time * 1000000);
-        }
     }
 }
