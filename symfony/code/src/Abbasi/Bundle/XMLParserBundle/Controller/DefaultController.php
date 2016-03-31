@@ -24,6 +24,7 @@ class DefaultController extends Controller
     {
         $sse = new SSE();
         $sse->addEventListener('xmlparser', new XMLParserEvent());
+        $sse->allow_cors = true;
         $sse->startStream();
     }
 

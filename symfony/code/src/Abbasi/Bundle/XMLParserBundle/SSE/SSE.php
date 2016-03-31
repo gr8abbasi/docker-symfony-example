@@ -17,7 +17,7 @@ class SSE
     public $client_reconnect = 1;
     //Allow Cross-Origin Access?
     //Default: false
-    public $allow_cors = true;
+    public $allow_cors = false;
     //The interval of sending a signal to keep the connection alive
     //default: 300 seconds
     public $keep_alive_time = 300;
@@ -66,8 +66,7 @@ class SSE
     public function startStream()
     {
         //prepare stream headers and flush buffers etc.
-        // $this->prepareStream();
-        exit;
+        $this->prepareStream();
 
         $start = time();//record start time
 
