@@ -17,7 +17,7 @@ class SSE
     public $client_reconnect = 1;
     //Allow Cross-Origin Access?
     //Default: false
-    public $allow_cors = false;
+    public $allow_cors = true;
     //The interval of sending a signal to keep the connection alive
     //default: 300 seconds
     public $keep_alive_time = 300;
@@ -44,7 +44,7 @@ class SSE
     */
     public function addEventListener($event, $handler)
     {
-        if ($handler instanceof Event) {
+        if ($handler instanceof EventInterface) {
             $this->_handlers[$event] = $handler;
         } else {
             throw new \InvalidArgumentException('An event handler must be an instance of SSEEvent.');
@@ -66,15 +66,15 @@ class SSE
     public function startStream()
     {
         //prepare stream headers and flush buffers etc.
-        $this->prepareStream();
+        // $this->prepareStream();
+        exit;
 
         $start = time();//record start time
 
         //set the retry interval for the client
         SSEHelper::sseSend('retry: '.($this->client_reconnect * 1000)."\n");
 
-
-        //keep the script running
+        //keep sthe script running
         while (true) {
             if (SSEHelper::timeMod($start, $this->keep_alive_time) == 0) {
                 //No updates needed, send a comment to keep the connection alive.
@@ -87,12 +87,6 @@ class SSE
                     //check if the data is avaliable
                     $data = $handler->update();//get the data
                     ++$this->id;
-                    SSEHelper::sseBlock($this->id, $data, $event);
-                    //make sure the data has been sent to the client
-                    unset($data);
-                    //memory_get_usage();
-                    @ob_flush();
-                    @flush();
                 } else {
                     continue;
                 }

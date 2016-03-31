@@ -4,7 +4,8 @@ namespace Abbasi\Bundle\XMLParserBundle\Controller;
 
 use XMLReader;
 use SimpleXMLElement;
-use Abbasi\Bundle\XMLParserBundle\SSE;
+use Abbasi\Bundle\XMLParserBundle\SSE\SSE;
+use Abbasi\Bundle\XMLParserBundle\SSE\XMLParserEvent;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 

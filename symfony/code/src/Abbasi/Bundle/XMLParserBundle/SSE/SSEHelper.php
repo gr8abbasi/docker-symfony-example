@@ -29,11 +29,23 @@ abstract class SSEHelper
             static::sseSend("event: $name\n");
         }
         static::sseSend(static::sseData($data) . "\n\n");
+
+        static::flushBuffer();
     }
     public static function sseSend($content)
     {
         echo $content;
     }
+
+    /**
+     * Flush Output Buffer
+     */
+    public static function flushBuffer()
+    {
+        @ob_flush();
+        @flush();
+    }
+
     /**
      * Calculate the modulus of time
      *

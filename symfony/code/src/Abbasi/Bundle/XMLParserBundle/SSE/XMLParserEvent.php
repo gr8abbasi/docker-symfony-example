@@ -2,7 +2,9 @@
 
 namespace Abbasi\Bundle\XMLParserBundle\SSE;
 
-use EventInterface;
+use XMLReader;
+use SimpleXMLElement;
+use Abbasi\Bundle\XMLParserBundle\SSE\EventInterface;
 
 class XMLParserEvent implements EventInterface
 {
@@ -30,7 +32,8 @@ class XMLParserEvent implements EventInterface
             $item['categories'][] = $node->categories->category;
             $item['additional'][] = $node->additional->priceExVat;
 
-            return json_encode($item);
+            SSEHelper::sseBlock(0, json_encode($item), "xmlparser");
+            unset($item);
         }
     }
 }
